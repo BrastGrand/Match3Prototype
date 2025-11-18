@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace Code.Infrastructure.AssetManagement
@@ -27,7 +26,7 @@ namespace Code.Infrastructure.AssetManagement
                 return completedHandle.Result as TAsset;
             }
 
-            AsyncOperationHandle<IList<IResourceLocation>> validateAddress = Addressables.LoadResourceLocationsAsync(key);
+            var validateAddress = Addressables.LoadResourceLocationsAsync(key);
             await validateAddress.Task;
 
             if (validateAddress.Status != AsyncOperationStatus.Succeeded || validateAddress.Result.Count == 0)
@@ -36,17 +35,18 @@ namespace Code.Infrastructure.AssetManagement
                 return null;
             }
 
-            AsyncOperationHandle<IList<TAsset>> handle = Addressables.LoadAssetsAsync<TAsset>(key);
+            var handle = Addressables.LoadAssetAsync<TAsset>(key);
 
             try
             {
-                AddHandle(key, handle);
                 await handle.Task;
+                AddHandle(key, handle);
                 return handle.Result as TAsset;
             }
             catch (Exception e)
             {
                 Debug.LogError($"Error loading asset {key}: {e.Message}");
+                Addressables.Release(handle);
                 return null;
             }
         }

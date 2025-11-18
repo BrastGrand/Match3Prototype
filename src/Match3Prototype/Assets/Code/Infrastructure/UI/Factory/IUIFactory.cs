@@ -14,5 +14,7 @@ namespace Code.Infrastructure.UI.Factory
             where TPresenter : BasePresenter<TView>;
 
         void CloseView<TView>() where TView : IView;
+
+        void CloseView(IView view);
     }
 }

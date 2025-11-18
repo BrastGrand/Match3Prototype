@@ -46,7 +46,7 @@ namespace Code.Infrastructure.UI.Factory
                 return _views.OfType<TView>().First();
             }
 
-            var prefab = await _assetProvider.Load<TView>(assetKey);
+            var prefab = await _assetProvider.Load<GameObject>(assetKey);
             var instance = _container.InstantiatePrefab(prefab, _uiRoot);
             var view = instance.GetComponent<TView>();
 
@@ -81,7 +81,26 @@ namespace Code.Infrastructure.UI.Factory
 
                 var assetKey = _assetInstances.FirstOrDefault(x => x.Value == instance).Key;
 
-                if (!string.IsNullOrEmpty(assetKey))
+                if (string.IsNullOrEmpty(assetKey) == false)
+                {
+                    _assetProvider.ReleaseAssetsByLabel(assetKey);
+                    _assetInstances.Remove(assetKey);
+                }
+            }
+        }
+
+        public void CloseView(IView view)
+        {
+            var instance = (view as Component)?.gameObject;
+
+            if (instance != null)
+            {
+                Object.Destroy(instance);
+                _views.Remove(view);
+
+                var assetKey = _assetInstances.FirstOrDefault(x => x.Value == instance).Key;
+
+                if (string.IsNullOrEmpty(assetKey) == false)
                 {
                     _assetProvider.ReleaseAssetsByLabel(assetKey);
                     _assetInstances.Remove(assetKey);
