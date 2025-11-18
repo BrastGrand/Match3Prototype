@@ -12,6 +12,9 @@ namespace Code.Infrastructure.UI.View
 
         private bool _isInitialized = false;
 
+        public virtual bool IsActive => gameObject.activeInHierarchy;
+        public virtual bool IsVisible => canvasGroup != null && canvasGroup.alpha > 0;
+
         protected virtual void Awake()
         {
             if (canvasGroup == null)
@@ -74,7 +77,7 @@ namespace Code.Infrastructure.UI.View
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0f;
-                await canvasGroup.DOFade(1f, fadeDuration).AsyncWaitForCompletion();
+                await canvasGroup.DOFade(1f, fadeDuration).Play().AsyncWaitForCompletion();
             }
             else
             {
@@ -86,7 +89,7 @@ namespace Code.Infrastructure.UI.View
         {
             if (canvasGroup != null)
             {
-                await canvasGroup.DOFade(0f, fadeDuration).AsyncWaitForCompletion();
+                await canvasGroup.DOFade(0f, fadeDuration).Play().AsyncWaitForCompletion();
             }
             else
             {
