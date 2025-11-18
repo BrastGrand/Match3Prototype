@@ -94,9 +94,39 @@ namespace Code.Infrastructure.AssetManagement
             return await handle.Task;
         }
 
+        public async Task ReleaseAssetsByLabel(string label)
+        {
+            var assetsList = await GetAssetsListByLabel(label);
+
+            foreach (var assetKey in assetsList)
+            {
+                if (_handles.TryGetValue(assetKey, out var handles))
+                {
+                    foreach (var handle in handles.Where(handle => handle.IsValid()))
+                    {
+                        Addressables.Release(handle);
+                    }
+
+                    _handles.Remove(assetKey);
+                }
+            }
+        }
+
         public void Dispose()
         {
             Cleanup();
+        }
+
+        private async Task<List<string>> GetAssetsListByLabel(string label, Type type = null)
+        {
+            var operationHandle = Addressables.LoadResourceLocationsAsync(label, type);
+            var locations = await operationHandle.Task;
+            var assetKeys = new List<string>(locations.Count);
+
+            assetKeys.AddRange(locations.Select(location => location.PrimaryKey));
+            Addressables.Release(operationHandle);
+
+            return assetKeys;
         }
 
         private void AddHandle<T>(string key, AsyncOperationHandle<T> handle)

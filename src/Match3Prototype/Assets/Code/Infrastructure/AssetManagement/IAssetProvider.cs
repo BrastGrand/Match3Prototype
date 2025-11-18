@@ -13,5 +13,6 @@ namespace Code.Infrastructure.AssetManagement
         Task<TAsset> Instantiate<TAsset>(string address, Transform under) where TAsset : class;
         Task<TAsset> Instantiate<TAsset>(string address, Vector3 at, Transform under) where TAsset : class;
         Task<SceneInstance> LoadScene(string sceneName);
+        Task ReleaseAssetsByLabel(string label);
     }
 }
